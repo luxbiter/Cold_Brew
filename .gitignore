@@ -1,0 +1,7 @@
+build/
+*.elf
+*.map
+*.wps
+*.zip
+.idea/
+.vscode/
