@@ -22,6 +22,11 @@ INCLUDES    := src
 
 CFLAGS      := -g -Wall -Wextra -Werror -O2 -ffunction-sections $(MACHDEP)
 CFLAGS      += $(INCLUDE) -D__WIIU__ -D__WUT__ -D__WUPS__
+
+ifeq ($(TRACE),1)
+CFLAGS      += -DCOLD_BREW_TRACE
+endif
+
 CXXFLAGS    := $(CFLAGS) -std=c++20
 ASFLAGS     := -g $(ARCH)
 LDFLAGS     := -g $(ARCH) $(RPXSPECS) -Wl,-Map,$(notdir $*.map) $(WUPSSPECS)

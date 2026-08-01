@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 
 namespace ColdBrew {
@@ -29,6 +30,38 @@ constexpr uint32_t KeepAtLeastOneVisible(uint32_t hiddenMask, uint32_t occupiedM
         bitToShow = occupiedMask & (~occupiedMask + 1u);
     }
     return hiddenMask & ~bitToShow;
+}
+
+struct AccountSlotMap {
+    uint8_t visibleCount = 0;
+    std::array<uint8_t, kLastAccountSlot + 1> virtualToPhysical = {};
+    std::array<uint8_t, kLastAccountSlot + 1> physicalToVirtual = {};
+
+    constexpr uint8_t ToPhysical(uint8_t virtualSlot) const {
+        return IsValidAccountSlot(virtualSlot) ? virtualToPhysical[virtualSlot] : 0;
+    }
+
+    constexpr uint8_t ToVirtual(uint8_t physicalSlot) const {
+        return IsValidAccountSlot(physicalSlot) ? physicalToVirtual[physicalSlot] : 0;
+    }
+};
+
+constexpr AccountSlotMap BuildAccountSlotMap(uint32_t occupiedMask, uint32_t hiddenMask) {
+    AccountSlotMap result;
+    const uint32_t effectiveHiddenMask = KeepAtLeastOneVisible(hiddenMask, occupiedMask);
+
+    for (uint8_t physicalSlot = kFirstAccountSlot; physicalSlot <= kLastAccountSlot; ++physicalSlot) {
+        const uint32_t bit = SlotBit(physicalSlot);
+        if ((occupiedMask & bit) == 0 || (effectiveHiddenMask & bit) != 0) {
+            continue;
+        }
+
+        ++result.visibleCount;
+        result.virtualToPhysical[result.visibleCount] = physicalSlot;
+        result.physicalToVirtual[physicalSlot]         = result.visibleCount;
+    }
+
+    return result;
 }
 
 } // namespace ColdBrew
