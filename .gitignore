@@ -3,5 +3,8 @@ build/
 *.map
 *.wps
 *.zip
+/diagnostics/
+/filter_logic_tests
+/filter_logic_tests.exe
 .idea/
 .vscode/
